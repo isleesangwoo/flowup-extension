@@ -1,0 +1,404 @@
+@charset "UTF-8";
+
+@charset "UTF-8";
+
+
+
+#right-bar{
+	width: 100%;
+    height: auto;  
+}
+
+#right_title_box{
+    box-sizing: border-box;
+    padding: var(--size24) var(--size24) var(--size18) var(--size24);
+   
+}
+
+#right_title{
+	font-size: var(--size22);
+}
+
+#toolbar{
+	width: 100%;
+	height: auto;
+	padding-top: 10px;
+	padding-left: 24px;
+	
+
+
+}
+
+
+.toolbtn{
+	border: 1px rgb(232,232,232) solid ;
+	background-color: #FFFF;
+	padding: 5px;
+	margin-left: 0.5%;
+	width: 100px;
+}
+
+.navtab_spelling{
+	margin-top: 20px;
+	border-bottom: solid 1px #b4b4b4;
+}
+
+.list{
+	border: none;
+	background-color: #FFFF;
+	margin-left: 2%;
+	color: #b4b4b4;
+	margin-bottom: 10px;
+}
+
+.profileimg{
+	display: inline-block;
+	width: 30px;
+	height: 30px;
+	border-radius: 50%;
+	border: 1px solid gray;
+	margin-right: 25px;
+	
+}
+
+.addressbooktable{
+	width:100%;
+}
+
+.img_class{
+	margin-right: 10px;
+}
+
+.thcss{
+	border-bottom: 1px solid #b4b4b4;
+	/* width: 12%; */
+	padding-right: 2%;
+	padding-left: 0;
+	font-weight: normal;
+	/* font-size: 15px; */
+}
+.thcss,.tdcss{
+	text-align: center;
+}
+
+.tdcss{
+	border: 0px red solid;
+	/* width: 12% */;
+	padding-right: 20px;
+	padding-top: 20px;
+	padding-bottom: 20px;
+	padding-left: 0;
+	font-size: 15px;
+	vertical-align: middle;
+}
+th:nth-child(2),td:nth-child(2)
+,th:nth-child(3),td:nth-child(3)
+,th:nth-child(5),td:nth-child(5)
+,th:nth-child(6),td:nth-child(6)
+,th:nth-child(7),td:nth-child(7)
+,th:nth-child(8),td:nth-child(8){
+	width: 11%;
+}
+
+th:nth-child(4),td:nth-child(4){
+	width: 15%;
+}
+
+th:nth-child(9),td:nth-child(9){
+	text-align:center;
+	width: 8%;
+}
+
+
+tbody tr{
+	border-bottom: 1px solid #e8e8e8;
+	padding-bottom: 10px;
+}
+
+.imgcenter,.thcheck{
+	text-align: center;
+}
+
+
+.imgcenter,.thcheck{
+  	padding-right : 0;
+  	padding-left:24px;
+}
+
+.thcss:nth-last-child(3) {
+	width: 50px;
+}
+th:last-child{
+	text-align: center;
+}
+
+td:last-child{
+	text-align: center;
+}
+
+
+.addBtn{
+	margin-top: 5%;
+	text-align: center;
+	font-size: 30px;
+}
+
+.addAdrsBook{
+	border: none;
+	background-color:transparent;
+}
+
+.openModal{
+	background-color:transparent;
+}
+
+.headerform{
+	width: 100px;
+	display: inline;
+	border: 0px gray solid;
+}
+
+
+/* --------- 모달창 css -------------- */
+
+
+.maodal_background{
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0, 0, 0, 0.5);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.modal_content{
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%,-50%);
+	z-index: 199;	
+}
+
+.addAdrsFrm{
+	width:700px;
+	height: auto;
+	background-color: white; 
+	margin: 0 auto;
+    padding: 5%;
+}
+
+
+.adrsinput{
+	display: inline-block;
+	width: 100px;
+}
+
+.close_btn_div{
+	text-align: right;
+}
+
+.closeModal{
+	width: 30px;
+	height: 30px;
+	font-size: 20px;
+	background-color:transparent;
+	border: none;
+}
+
+.modal_input_title{
+	font-size: 16px;
+	height: 30px;
+	line-height: 30px;
+	display: inline-block;
+	width: 100px;
+}
+
+.input_li{
+	margin-bottom: 10px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 5px;
+    position: relative;	
+}
+
+.modal_input{
+	width: 300px;
+	height: 30px;
+	line-height: 30px;
+	margin-left: 10px;
+	border: 1px #e8e8e8 solid;
+	font-size: 16px;
+}
+
+.add,.no_add{
+	font-size: 20px;
+	width: 150px;
+	height: 30px;
+	padding: 5px;
+	background-color:transparent;
+	border: none;
+}
+
+.input_li:last-child {
+	margin-top: 50px;
+}
+
+.spelling:hover{
+	color: black;
+}
+
+.hoverEvent:hover{
+	cursor: pointer;
+}
+
+
+.trcss{
+	border:none;
+}
+
+
+.insertGroupBtn{
+	border:none;
+	background-color: transparent;
+	
+}
+
+
+/*----- 북마크 css  ---------*/
+
+
+
+#bookmark:hover{
+	cursor: pointer;
+}
+
+
+
+/* ------- 주소록 그룹 모달창  -------  */
+
+.addgroup_modal{
+	/* border: 1px gray solid;
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	padding: 20px;
+	z-index: 99999999;
+	
+	background-color: #ffff;
+	width:700px; */
+	
+	position: fixed;
+   top: 50%;
+   left: 50%;
+   transform: translate(-50%,-50%);
+   z-index: 199;   
+   background-color: #ffff;
+   padding: 20px;
+}
+/* .displayCenterCss{
+	display: flex;
+	justify-content: center;
+} */
+.group_select,.group_option{
+	width: 150px;
+	padding: 2px 15px;
+	font-size: 18px;
+	border-radius: 3px;
+	
+}
+
+.group_select{
+	border:none;
+}
+
+.group_select > .group_option{
+	margin-top: 2px;
+	border-radius: 3px;
+	border: 1px solid black;
+}
+
+
+.groupList{
+	margin-bottom: 10px;
+}
+
+#inputlabel{
+	display:inline-block;
+	margin-right: 5px;
+	width : 170px;
+	border: 1px gray solid;
+}
+
+.addGroupBtn,.addGroup{
+	/* margin-left: 10px; */
+	width:150px;
+	border: 1px gray solid;
+	background-color: #ffff;
+}
+
+.addGroup{
+	margin-left: 10px;
+	border:none;
+}
+
+.addGroup:hover{
+	background-color: #0d6efd;
+	color:white;
+}
+
+.addGroupBtn{
+	border:none;
+}
+
+.addGroupBtn:hover{
+	background-color: #0d6efd;
+	color:white;
+}
+
+.groupname{
+	border: 1px gray solid;
+}
+
+#inputlabel{
+	border: none;
+	text-align: center;
+}
+
+#inputlabel, .addGroupBtn, .groupname,.addGroup{
+	display: inline-block;
+	padding: 3px 10px;
+	height: 35px;
+	border-radius: 3px;
+}
+
+.groupModalBackground{
+	/* position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0, 0, 0, 0.5);
+	display: flex;
+	justify-content: center;
+	align-items: center;	 */
+	
+	
+	position: fixed;
+   top: 0;
+   left: 0;
+   width: 100%;
+   height: 100%;
+   background-color: rgba(0, 0, 0, 0.5);
+   display: flex;
+   justify-content: center;
+   align-items: center;
+}
+
+.groupaddclose{
+	background: transparent;
+	border: none;
+}

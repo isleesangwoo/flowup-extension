@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+
+   <!-- domain(VO) package -->
+   <typeAliases>
+      <typeAlias type="com.spring.app.board.domain.BoardVO" alias="BoardVO"/>
+      <typeAlias type="com.spring.app.board.domain.CommentVO" alias="CommentVO"/>
+      <typeAlias type="com.spring.app.commute.domain.CommuteVO" alias="CommuteVO"/>
+      <typeAlias type="com.spring.app.employee.domain.DepartmentVO" alias="DepartmentVO"/>
+      <typeAlias type="com.spring.app.employee.domain.EmployeeVO" alias="EmployeeVO"/>
+      <typeAlias type="com.spring.app.schedule.domain.Calendar_small_category_VO" alias="Calendar_small_category_VO"/> 
+      <typeAlias type="com.spring.app.board.domain.PostVO" alias="PostVO"/>
+      <typeAlias type="com.spring.app.document.domain.DocumentVO" alias="DocumentVO"/>
+      <typeAlias type="com.spring.app.reservation.domain.AssetVO" alias="AssetVO"/>
+      <typeAlias type="com.spring.app.mail.domain.MailVO" alias="MailVO"/>
+      <typeAlias type="com.spring.app.reservation.domain.AssetReservationVO" alias="AssetReservationVO"/>
+      <typeAlias type="com.spring.app.commute.domain.AnnualVO" alias="AnnualVO"/>
+      <typeAlias type="com.spring.app.board.domain.PostFileVO" alias="PostFileVO"/>
+      <typeAlias type="com.spring.app.commute.domain.SalaryVO" alias="SalaryVO"/>
+      <typeAlias type="com.spring.app.document.domain.ApprovalVO" alias="ApprovalVO"/>
+      <typeAlias type="com.spring.app.mail.domain.MailFileVO" alias="MailFileVO"/>
+      <typeAlias type="com.spring.app.employee.domain.AddressBookVO" alias="AddressBookVO"/>
+      <typeAlias type="com.spring.app.board.domain.LikeVO" alias="LikeVO"/>
+      <typeAlias type="com.spring.app.mail.domain.ReferencedVO" alias="ReferencedVO"/>
+      <typeAlias type="com.spring.app.employee.domain.TeamVO" alias="TeamVO"/>
+      <typeAlias type="com.spring.app.board.domain.NotificationVO" alias="NotificationVO"/>
+      <typeAlias type="com.spring.app.employee.domain.GroupVO" alias="GroupVO"/>
+   </typeAliases>
+
+</configuration>

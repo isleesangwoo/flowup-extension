@@ -1,0 +1,49 @@
+#right_bar{
+    width: 100%;
+    height: auto;
+    border: 0px solid red;
+}
+
+#right_title_box {
+    box-sizing: border-box;
+    padding: var(--size24) var(--size24) var(--size18) var(--size24);
+    border-bottom: 1px solid #c8c8c8;
+}
+
+#right_title {
+    font-size: var(--size22);
+}
+
+
+
+/* ------------------------------  */
+
+#updateBoardGroupFrmButtonTag{
+	text-align: center;
+	margin: 30px 0;
+}
+#updateSearchWord{
+	width: 100%;
+}
+#updateBoardGroup{
+	width: 600px;
+    height: var(--size44);
+    font-size: var(--size18);
+    transition-duration: 150ms;
+    border-width: 1px;
+    border-style: solid;
+    border-radius: calc(var(--size2) + var(--size2));
+    align-items: center;
+    text-wrap: nowrap;
+    background-color: #2985db;
+    border-color: #056ac9;
+    color: #fff;
+    margin-bottom: var(--size10);
+}
+.columnTitle{ /* 테이블 각 tr의 첫 번째 td */
+	min-width:140px;
+	vertical-align: top;
+}
+td{
+	padding: var(--size12) var(--size22);
+}
