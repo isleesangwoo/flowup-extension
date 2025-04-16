@@ -27,6 +27,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 						 ,"com.spring.app.document.model"
 						 ,"com.spring.app.employee.model"
 						 ,"com.spring.app.mail.model"
+						 ,"com.spring.app.repository.model"
 						 ,"com.spring.app.reservation.model"}, sqlSessionFactoryRef="sqlSessionFactory") 
 public class Datasource_finalorauser3_Configuration {
 
