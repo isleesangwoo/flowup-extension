@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- ==== mapper 기본설정 ==== -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- ==== 루트 엘리먼트 & 네임스페이스 설정(프로젝트 전체내에서 유일해야 한다.) ==== -->
+<mapper namespace="com.spring.app.reservation.model.ReservationDAO">
+
+
+	<resultMap id="assetSelect_Map" type="HashMap">
+		<result property="assetNo" 			column="assetNo" 			javaType="String"/>
+		<result property="assetTitle" 		column="assetTitle" 		javaType="String"/>
+		<result property="assetInfo" 		column="assetInfo" 			javaType="String"/>
+		<result property="assetRegisterday" column="assetRegisterday" 	javaType="String"/>
+		<result property="assetChangeday"   column="assetChangeday" 	javaType="String"/>
+		<result property="classification"   column="classification" 	javaType="String"/>
+		
+		<result property="assetdetailno"   column="assetdetailno" 	javaType="String"/>
+		<result property="assetname"   column="assetname" 	javaType="String"/>
+		<result property="fk_assetNo"   column="fk_assetNo" 	javaType="String"/>
+		
+	</resultMap>
+	<!-- 자산 대분류를 select 해주는 메소드 -->
+	<select id="tbl_assetSelect" resultMap="assetSelect_Map">
+		select assetNo, assetTitle, assetInfo, assetRegisterday, assetChangeday, classification
+		from tbl_asset
+	</select>
+	
+	
+	<update id="assetInfoUpdate" parameterType="HashMap">
+		update tbl_asset set assetInfo = #{assetInfo} where assetNo = #{assetNo}
+	</update>
+	
+	
+	
+	<resultMap id="assetDetailSelect_Map" type="HashMap">
+		<result property="assetDetailNo" 		   column="assetDetailNo" 		   javaType="String"/>
+		<result property="fk_assetNo" 			   column="fk_assetNo" 			   javaType="String"/>
+		<result property="assetName" 			   column="assetName" 		       javaType="String"/>
+		<result property="assetDetailRegisterday"  column="assetDetailRegisterday" javaType="String"/>
+		<result property="assetDetailChangeday"    column="assetDetailChangeday"   javaType="String"/>
+	</resultMap>
+	<!-- 자산 상세를 select 해주는 메소드 -->
+	<select id="tbl_assetDetailSelect" resultMap="assetDetailSelect_Map">
+		select assetDetailNo, fk_assetNo, assetName, assetDetailRegisterday, assetDetailChangeday
+		from tbl_assetDetail
+	</select>
+
+	
+  
+  	<!-- 자산 대분류를 insert 해주는 메소드 -->
+	<insert id="reservationAdd" parameterType="HashMap">
+		insert into tbl_asset(assetNo, assetTitle, assetInfo, assetRegisterday, assetChangeday, classification, asseGroupno, asseDepthno)
+		values(seq_assetNo.nextval, #{assetTitle}, #{assetInfo}, sysdate, null, #{classification}, seq_assetNo.NEXTVAL, 0)
+	</insert>
+   
+   
+   <resultMap type="HashMap" id="my_Reservation_Map">
+	   	<result property="assetReservationNo"  column="assetReservationNo"  javaType="String"/>
+	   	<result property="fk_assetDetailNo"    column="fk_assetDetailNo" 	javaType="String"/>
+	   	<result property="fk_employeeNo"       column="fk_employeeNo" 		javaType="String"/>
+	   	<result property="reservationStart"    column="reservationStart" 	javaType="String"/>
+	   	<result property="reservationEnd" 	   column="reservationEnd" 	 	javaType="String"/>
+	   	<result property="reservationDay" 	   column="reservationDay" 	    javaType="String"/>
+	   	<result property="reservationcontents" 	   column="reservationcontents" 	    javaType="String"/>
+	   	
+	   	<result property="name" 	   column="name" 	    javaType="String"/>
+	   	
+	   	<result property="assetTitle" 	   column="assetTitle" 	    javaType="String"/>
+	   	<result property="assetName" 	   column="assetName" 	    javaType="String"/>
+   </resultMap>
+   <!-- 내 예약 정보를 select 해주는 메소드 -->
+   <select id="my_Reservation" parameterType="String" resultMap="my_Reservation_Map">
+		select assetReservationNo, assetTitle, assetName, fk_assetDetailNo, fk_employeeNo, reservationStart, reservationEnd, reservationDay
+		from tbl_assetReservation ar join tbl_assetDetail ad
+		on ar.fk_assetDetailNo = ad.assetDetailNo
+		join tbl_asset ass
+		on ass.assetNo = ad.fk_assetNo
+		where fk_employeeNo = #{employeeNo} and reservationStart >= sysdate
+   </select>
+
+
+
+	<!-- 대분류 하나를 삭제해주는 메소드 -->
+	<delete id="deleteAsset" parameterType="String">
+		delete from tbl_asset
+		where assetNo = #{assetNo}
+	</delete>
+	
+	
+	<!-- 하나에 해당하는 대분류를 조회해주는 메소드 -->
+	<select id="assetOneSelect" resultType="AssetVO" parameterType="String">
+		select assetNo, assetTitle, assetInfo, assetRegisterday, assetChangeday, classification, asseGroupno, asseDepthno
+		from tbl_asset
+		where assetNo = #{assetNo}
+	</select>
+	
+	
+	
+	<resultMap type="HashMap" id="middleTapInfo_Map">
+	   	<result property="assetInformationNo"  column="assetInformationNo"  javaType="String"/>
+	   	<result property="fk_assetDetailNo"    column="fk_assetDetailNo" 	javaType="String"/>
+	   	<result property="InformationTitle"    column="InformationTitle" 	javaType="String"/>
+	   	<result property="InformationContents" column="InformationContents" javaType="String"/>
+	   	<result property="release" 			   column="release" 			javaType="String"/>
+	   	
+	   	<result property="assetDetailNo" 	   column="assetDetailNo" 		javaType="String"/>
+	   	<result property="assetName" 		   column="assetName" 			javaType="String"/>
+   </resultMap>
+	<select id="middleTapInfo" parameterType="String" resultMap="middleTapInfo_Map">
+		select assetinformationno, fk_assetdetailno, informationtitle, informationcontents, release
+		from tbl_assetInformation
+		where fk_assetdetailno = #{fk_assetdetailno}
+	</select>
+	
+	
+	
+	<!-- 비품명을 추가해주는 메소드 -->
+	<insert id="addFixtures" parameterType="HashMap">
+	    insert into tbl_assetInformation (ASSETINFORMATIONNO, FK_ASSETDETAILNO, INFORMATIONTITLE, RELEASE)
+	    values (seq_assetInformationNo.nextval, #{fk_assetdetailno}, #{informationtitle}, #{release} )
+	</insert>
+
+
+
+	<!-- 비품 하나를 삭제해주는 메소드 -->
+	<delete id="midDeleteOne" parameterType="String">
+		delete from tbl_assetInformation where assetInformationNo = #{assetInformationNo}
+	</delete>
+
+
+
+
+	<!-- 자산 하나에 해당하는 비품들 조회하기 -->
+	<select id="fixSelectAssetNo" parameterType="String" resultMap="middleTapInfo_Map">
+		select assetDetailNo, assetName, assetInformationNo, InformationTitle, InformationContents, release
+		from tbl_assetDetail ad join tbl_assetInformation ai
+		on ad.assetDetailNo = ai.fk_assetDetailNo
+		where assetDetailNo = #{fk_assetDetailNo}
+	</select>
+
+
+	<!-- 자산명을 수정해주는 메소드 -->
+	<update id="updateAssetDetailName" parameterType="HashMap">
+		update tbl_assetDetail set assetName = #{assetName}
+		where assetDetailNo = #{assetDetailNo}
+	</update>
+	
+	
+	<!-- 비품내용들을 수정해주는 메소드 -->
+	<update id="GofixInfo" parameterType="HashMap">
+		update tbl_assetInformation set InformationTitle = #{InformationTitle}, 
+										InformationContents = #{InformationContents}, 
+										release = #{release}
+		where assetInformationNo = #{assetInformationNo}
+	</update>
+
+
+
+	<!-- 대분류에 딸린 소분류들을 select 해주는 메소드 -->
+	<select id="assetOneDeSelect" parameterType="String" resultMap="assetDetailSelect_Map">
+		select assetDetailNo, fk_assetNo, assetName, assetDetailRegisterday, assetDetailChangeday
+		from tbl_assetDetail
+		where fk_assetNo = #{assetNo}
+	</select>
+
+
+
+
+	<!-- 자산추가를 해주는 메소드 -->
+	<insert id="addAsset" parameterType="HashMap">
+		insert into tbl_assetDetail(assetDetailNo, fk_assetNo, assetName, assetDetailRegisterday, assetDetailChangeday)
+		values(seq_assetDetailNo.nextval, #{fk_assetNo}, #{assetName}, sysdate, null)
+	</insert>
+
+
+	
+	<!-- 해당 페이지 내의 일자 구간 예약정보 불러오기 -->
+	<select id="selectassetReservationThis" parameterType="AssetReservationVO" resultType="AssetReservationVO">
+		select assetReservationNo, fk_assetDetailNo, fk_employeeNo, 
+		       to_char(reservationStart, 'yyyy.mm.dd hh24:mi') as reservationStart, 
+		       to_char(reservationEnd, 'yyyy.mm.dd hh24:mi') as reservationEnd, 
+		       to_char(reservationDay, 'yyyy.mm.dd hh24:mi'), 
+		       reservationContents
+		from tbl_assetReservation
+		where fk_assetDetailNo = #{fk_assetDetailNo} and (to_char(reservationEnd, 'yyyy.mm.dd') between #{reservationStart} and #{reservationEnd})
+		order by assetReservationNo
+	</select>
+	
+	
+	<!-- 회의실별 오늘에 해당하는 예약 정보 조회 -->
+	<select id="selectNowReservation" parameterType="HashMap" resultMap="my_Reservation_Map">
+		select assetReservationNo, fk_assetDetailNo, fk_employeeNo, name, reservationStart, reservationEnd, reservationcontents
+		from tbl_assetReservation ar join tbl_employee e
+		on fk_employeeNo = employeeNo
+		where fk_assetDetailNo in
+		<foreach collection="assetDetailNo_arr" index="i" open="(" separator="," close=")">
+			${assetDetailNo_arr[i]}
+		</foreach>
+		and to_char(reservationstart, 'yyyy-mm-dd') = #{reservationStart}
+	</select>
+
+
+
+
+	<!-- 예약하기에 앞서 해당 일자에 예약한 건이 있는지 확인 -->
+	<select id="selectReservation" parameterType="AssetReservationVO">
+		select count(*)
+		from tbl_assetReservation
+		where <![CDATA[reservationStart < to_date(#{reservationEnd}, 'yyyy-mm-dd hh24:mi')]]> 
+  			  and <![CDATA[reservationEnd > to_date(#{reservationStart}, 'yyyy-mm-dd hh24:mi')]]> 
+	</select>
+
+
+
+	<!-- 예약추가를 해주는 메소드 -->
+	<insert id="addReservation" parameterType="AssetReservationVO">
+		insert into tbl_assetReservation(assetReservationNo, fk_assetDetailNo, fk_employeeNo, reservationStart, reservationEnd, reservationContents, reservationDay)
+		values(seq_roomReservationNo.nextval, to_number(#{fk_assetDetailNo}), to_number(#{fk_employeeNo}), to_date(#{reservationStart}, 'yyyy-mm-dd hh24:mi'), to_date(#{reservationEnd}, 'yyyy-mm-dd hh24:mi'), #{reservationContents},  sysdate)
+	</insert>
+
+
+	<delete id="deleteAssetReservationNo" parameterType="String">
+		delete from tbl_assetReservation where assetReservationNo = #{assetReservationNo}
+	</delete>
+
+
+	<!-- 자산 소분류 삭제 -->
+	<delete id="deleteAssetNo" parameterType="String">
+		delete from tbl_assetDetail where assetDetailNo = #{assetDetailNo}
+	</delete>
+
+
+
+	<!-- 캘린더에서 예약기능 -->
+	<select id="selectReservationCal" parameterType="HashMap" resultMap="assetSelect_Map">
+		select assetNo, ad.assetdetailno, ad.assetname, fk_assetNo
+		from tbl_assetdetail ad join tbl_asset ass
+		on ad.fk_assetNo = ass.assetNo
+		where not exists (
+		    select 1
+		    from tbl_assetreservation ar
+		    where ar.fk_assetdetailno = ad.assetdetailno
+		    and (
+		        (to_date(#{startdate}, 'YYYYMMDD HH24:MI:SS') between ar.reservationstart and ar.reservationend)
+		        or (to_date('20250313180000', 'YYYYMMDD HH24:MI:SS') between ar.reservationstart and ar.reservationend)
+		        or (ar.reservationstart between to_date(#{startdate}, 'YYYYMMDD HH24:MI:SS') and to_date(#{enddate}, 'YYYYMMDD HH24:MI:SS'))
+		        or (ar.reservationend between to_date(#{startdate}, 'YYYYMMDD HH24:MI:SS') and to_date(#{enddate}, 'YYYYMMDD HH24:MI:SS'))
+		    )
+		)
+	</select>
+
+
+</mapper>
+
+
+
+
+
+
+
+
+

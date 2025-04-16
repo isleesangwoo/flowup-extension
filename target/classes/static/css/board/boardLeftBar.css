@@ -1,0 +1,244 @@
+/* === 모달 시작 === */
+.modal_bg{
+    display: none;
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    width: 100vw;
+    height: 100vh;
+    z-index: 10;
+    background-color: rgba(0,0,0,0.2);
+}
+
+.modal_container{
+    position: fixed;
+    top: 0px;
+    right: 0px;
+    width: 0%;
+    height: 100vh;
+    z-index: 11;
+    background-color: #fff;
+    transition: all 0.5s cubic-bezier(0.23, 1, 0.320, 1);
+}
+
+#modal_title {
+    font-size: var(--size24);
+    padding: var(--size12) var(--size22);
+    display: block;
+}
+/* === 모달 끝 === */
+
+/* === 게시판 생성하기 모달 시작 === */
+.addBoardModal {
+    display: none; /* 기본적으로 숨김 */
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.3);
+}
+#modal-content{
+	width: 500px;
+	background-color: white;
+    padding: var(--size24);
+    margin: 10% auto;
+    border-radius: 10px;
+    filter: drop-shadow(4px 5px 22px rgba(0, 0, 0, 0.2));
+}
+label{
+	margin-bottom:0px;
+}
+#isPublicDept{
+	padding : var(--size24) 0;
+}
+#selectDeptList{
+	 margin-bottom: 10px;
+}
+#addBoardGroupTbl  tr{
+	margin: 100px;
+}
+#addBoardGroupTbl  tr  td:nth-child(1){
+	padding-top: 10px;
+	width: 20%;
+}
+#addBoardGroupTbl  tr  td:nth-child(2){
+	padding-top: 10px;
+	padding-left: 10px;
+}
+#createBoard_Modal_title{
+	font-weight : bold;
+	margin-bottom: 20px;
+}
+
+#addBoardContainer {
+	border-top:solid 1px #c8c8c8;
+	margin-top: 10px;
+	padding-top : 10px;
+	text-align: center;
+}
+#addBoard {
+    display: inline-block;
+    font-size: 15px;
+    color: #333;
+    cursor: pointer;
+}
+#addBoard:hover {
+    color: black;
+}
+#addBoardGroup{
+    font-size:var(--size18);
+    font-weight:bold;
+    color: #000000;
+    cursor: pointer;
+}
+#close {
+	padding-left : var(--size10);
+    font-size:var(--size18);
+    font-weight:bold;
+    color: #000000;
+    cursor: pointer;
+}
+#addBoardGroup:hover {
+    color: #c8c8c8;
+}
+
+#close:hover {
+    color: #c8c8c8;
+}
+/* === 게시판 생성하기 모달 끝 === */
+
+
+#main_section {
+    display: flex;
+    box-sizing: border-box;
+}
+#left_bar {
+    position: sticky;
+    top: 0px;
+    width: var(--size250);
+    height: 100vh;
+    background-color: #eff4fc;
+    box-sizing: border-box;
+    padding: var(--size20);
+    border-right: 1px solid #c8c8c8;
+    flex-shrink: 0;
+}
+
+#writePostBtn {
+    width: 100%;
+    height: var(--size44);
+    font-size: var(--size18);
+    transition-duration: 150ms;
+    border-width: 1px;
+    border-style: solid;
+    border-radius: calc(var(--size2) + var(--size2));
+    align-items: center;
+    text-wrap: nowrap;
+    background-color: #2985db;
+    border-color: #056ac9;
+    color: #fff;
+    margin-bottom: var(--size10);
+}
+
+.board_menu_container{
+    width: 100%;
+    height: auto;
+}
+
+.board_menu_container > ul li {
+    width: 100%;
+    height: var(--size38);
+    font-size: var(--size15);
+    user-select: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    padding-left: var(--size10);
+}
+
+.board_menu_container > ul > li > a {
+    color: #333;
+    text-decoration: none;
+}
+
+.board_menu_container > ul > li:hover {
+    background-color: var(--baseColor1);
+}
+
+#selectBoardGroup{
+	width: 100%;
+	display:inline-block;
+	padding: 0 var(--size22) var(--size18) var(--size22);
+	border-bottom: solid 1px #c8c8c8;
+}
+td {
+    padding: var(--size8) 0; 
+    vertical-align: top;     
+    text-align: left;
+}
+
+#fileDrop{
+	border: 2px dashed #ddd;
+    padding: 20px;
+    margin-bottom: 10px;
+    color: #666;
+}
+
+#fileDrop:hover {
+  background-color: #f9f9f9;
+  width: 100%;
+}
+.delete:hover{
+	cursor: pointer;
+}
+#addPostBtnElmt{
+	float: right;
+}
+
+
+/* 현재 페이지에 이렇게 넣어주세요! */
+.board_menu_container > ul li:nth-child(1){
+    background-color: #dae8f8 !important;
+    color: #056ac9;
+    font-weight: 600;
+}
+
+.board_menu_container > ul li:nth-child(1) > a {
+    color: #056ac9;
+}
+
+/* 게시판 설정하기 링크 */
+.upateBoard{
+	display:inline-block;
+	margin-left: auto;
+}
+.updateGear:hover{
+	color: #c8c8c8;
+}
+.deleteTrash:hover{
+	color: #c8c8c8;
+}
+
+
+
+
+
+
+
+
+
+.w_max{
+	width: 100%;
+}
+.btnDefaultDesignNone { /* 버튼의 기본 디자인을 없애는 클래스 */
+	background-color: transparent;
+	border: none;
+	outline: none;
+	cursor: pointer;
+}
+
+
+

@@ -1,0 +1,504 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- ==== mapper 기본설정 ==== -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- ==== 루트 엘리먼트 & 네임스페이스 설정(프로젝트 전체내에서 유일해야 한다.) ==== -->
+<mapper namespace="com.spring.app.commute.model.CommuteDAO">
+   
+   	<select id="getTodayWorkInfo" parameterType="String" resultType="CommuteVO">
+   		select commuteNo, FK_employeeNo, nvl(to_char(startTime, 'yyyy-mm-dd hh24:mi:ss'), '-') as startTime, nvl(to_char(endTime, 'yyyy-mm-dd hh24:mi:ss'), '-') as endTime, status, rest, overTimeYN
+   		from tbl_commute
+   		where fk_employeeNo = to_number(#{fk_employeeNo}) and (starttime BETWEEN trunc(sysdate) and trunc(sysdate)+0.9999)
+   	</select>
+   
+   	<insert id="insertWorkStart" parameterType="String">
+   		insert into tbl_commute(commuteNo, FK_employeeNo, startTime, status, rest, overTimeYN)
+   		values(commuteSeq.nextval, to_number(#{fk_employeeNo}), sysdate, 2, 0, 0)
+   	</insert>
+   	
+   	<update id="updateStartTime" parameterType="String">
+   		update tbl_commute set startTime = sysdate, status = 2
+   		where fk_employeeNo = to_number(#{fk_employeeNo}) and (starttime BETWEEN trunc(sysdate) and trunc(sysdate)+0.9999)
+   	</update>
+   	
+   	<update id="updateEndTime" parameterType="String">
+   		update tbl_commute set endTime = sysdate, status = 6
+   		where fk_employeeNo = to_number(#{fk_employeeNo}) and (starttime BETWEEN trunc(sysdate) and trunc(sysdate)+0.9999)
+   	</update>
+   	
+   	<update id="statusChange" parameterType="HashMap">
+   		update tbl_commute set status = to_number(#{status})
+   		where fk_employeeNo = to_number(#{fk_employeeNo}) and (starttime BETWEEN trunc(sysdate) and trunc(sysdate)+0.9999)
+   	</update>
+   	
+   	<resultMap type="HashMap" id="ThisWeekWorkTimeMap">
+   		<result property="workTime" column="workTime" javaType="String" />
+   	</resultMap>
+   	<select id="getThisWeekWorkTime" parameterType="String" resultMap="ThisWeekWorkTimeMap">
+	   		select to_char( nvl( round(endTime - startTime , 8), 0) ) as workTime
+			from tbl_commute
+			where fk_employeeNo = to_number(#{fk_employeeNo})
+			and to_char(starttime,'w') = to_char(SYSDATE,'w')
+        	and to_char(starttime,'yyyymm') = to_char(SYSDATE,'yyyymm')
+   	</select>
+   	
+   	<select id="getDepInfo" resultType="DepartmentVO">
+   		select departmentNo, FK_managerNo, departmentName
+   		from tbl_department
+   	</select>
+   	
+   	<resultMap type="HashMap" id="getMontWorkInfoMap">
+   		<result property="startTime" column="startTime" javaType="String" />
+   		<result property="endTime" column="endTime" javaType="String" />
+   	</resultMap>
+   	<select id="getMontWorkInfo" parameterType="HashMap" resultMap="getMontWorkInfoMap">
+   		select nvl(to_char(startTime, 'yyyy-mm-dd hh24:mi'), '-') as startTime, nvl(to_char(endTime, 'yyyy-mm-dd hh24:mi'), '-') as endTime
+   		from tbl_commute
+   		where fk_employeeNo = to_number(#{fk_employeeNo})
+   		and (starttime BETWEEN to_date(#{selectMonth}, 'yyyy-mm-dd') and add_months(to_date(#{selectMonth}, 'yyyy-mm-dd'), 1)-0.00001)
+   	</select>   	
+   	
+   	<resultMap type="HashMap" id="getWorktimeMap">
+   		<result property="weekNo" 		column="weekNo" 		javaType="String" />
+   		<result property="worktime_sec" column="worktime_sec" 	javaType="String" />
+   	</resultMap>
+   	<select id="getWorktime" parameterType="HashMap" resultMap="getWorktimeMap">
+   		select to_char(trunc(starttime) , 'w') as weekNo
+		     , sum(nvl((endtime - starttime), 0) * 24 * 60 * 60) as worktime_sec
+		from tbl_commute
+		where fk_employeeno = to_number(${fk_employeeNo})
+		and to_char(starttime, 'yyyymm') = ${year_month}
+		group by to_char(trunc(starttime) , 'w') 	
+		order by 1
+   	</select> 
+   	
+   	
+   	
+   	
+   	<resultMap type="HashMap" id="getMontWorkInfo_alldayMap">
+   		<result property="startTime" column="startTime" javaType="String" />
+   		<result property="endTime" column="endTime" javaType="String" />
+   		<result property="dt" column="dt" javaType="String" />
+   		<result property="worksec" column="worksec" javaType="String" />
+   		<result property="rest" column="rest" javaType="String" />
+   		<result property="overtimeYN" column="overtimeYN" javaType="String" />
+   	</resultMap>
+	<select id="getMontWorkInfo_allday" parameterType="HashMap"  resultMap="getMontWorkInfo_alldayMap">
+		SELECT to_char( b.dt, 'yyyy-mm-dd' ) as dt
+		     , NVL( to_char(starttime, 'hh24:mi:ss') , '00:00:00') as starttime
+		     , NVL( to_char(endtime, 'hh24:mi:ss') , '00:00:00') as endtime
+		     , nvl( trunc((endtime - starttime) * 24 * 60 * 60) , 0) as worksec
+		     , rest, overtimeYN
+		FROM 
+		(
+		    SELECT trunc(starttime) as dtt
+		         , starttime
+		         , endtime
+		         , rest
+		         , overtimeYN
+		    FROM tbl_commute
+		    WHERE fk_employeeno = to_number(#{fk_employeeNo})
+		          and substr(workdate,1,7) = #{year_month}
+		)a 
+		right join
+		( 
+		    SELECT to_date( #{year_month}, 'YYYY-MM') + LEVEL - 1 AS dt
+		    FROM dual 
+		    CONNECT BY LEVEL &lt;= (LAST_DAY( #{year_month}||'-01') - to_date( #{year_month}, 'YYYY-MM')+ 1 )
+		)b
+		on b.dt = a.dtt
+		ORDER BY b.dt
+	</select>
+   	
+   	   	
+   	<resultMap type="HashMap" id="getEmployeeInfoMap">
+   		<result property="positionName" column="positionName" javaType="String" />
+   		<result property="name" column="name" javaType="String" />
+   	</resultMap>
+   	<select id="getEmployeeInfo" parameterType="String" resultMap="getEmployeeInfoMap">
+   		select P.positionName as positionName, name
+   		from tbl_employee E join tbl_position P
+   		on E.FK_positionNo = P.positionNo
+   		where employeeNo = to_number(#{fk_employeeNo})
+   	</select>
+   	
+   	<select id="getAnnualInfo" parameterType="HashMap" resultType="AnnualVO">
+   		select annualNo, year, occurAnnual, overAnnual, addAnnual
+   		from tbl_annual
+   		where fk_employeeNo = to_number(#{fk_employeeNo}) and year = #{year}
+   	</select>
+   	
+   	<select id="getUsedAnnual" parameterType="HashMap" resultType="String">
+   		select sum(useamount) as usedAnnual
+		from tbl_document D join tbl_draft_annual A
+		on D.DOCUMENTNO = A.DOCUMENTNO
+		where fk_employeeno = to_number(#{fk_employeeNo})
+		and to_char(startdate, 'yyyy') = #{year}
+		and D.status = 1
+		group by to_char(startdate, 'yyyy')
+   	</select>
+   	
+   	<resultMap type="HashMap" id="getUsedAnnualListMap">
+   		<result property="userange" column="userange" javaType="String" />
+   		<result property="useamount" column="useamount" javaType="String" />
+   		<result property="reason" column="reason" javaType="String" />
+   	</resultMap>
+   	<select id="getUsedAnnualList" parameterType="HashMap" resultMap="getUsedAnnualListMap">
+   		select to_char(startdate, 'mm/dd')|| ' - ' ||to_char(enddate, 'mm/dd') as userange, useamount, reason
+		from tbl_document D join tbl_draft_annual A
+		on D.DOCUMENTNO = A.DOCUMENTNO
+		where D.fk_employeeno = to_number(#{fk_employeeNo})
+		and to_char(startdate, 'yyyy') = #{year}
+		and D.status = 1
+		order by startdate asc 
+   	</select>
+   	
+   	<select id="getWorkYear" parameterType="String" resultType="String">
+   		select year
+   		from tbl_annual
+   		where fk_employeeNo = to_number(#{fk_employeeNo})
+   		order by year desc
+   	</select>
+   	
+   	<select id="getdeptInfo" parameterType="String" resultType="DepartmentVO">
+   		select FK_managerNo, departmentName
+   		from tbl_department
+   		where departmentNo = to_number(#{departmentNo})
+   	</select>
+   	
+   	<resultMap type="HashMap" id="getCommuteTableInfoMap">
+   		<result property="departmentname" 	column="departmentname" javaType="String" />
+   		<result property="name" 			column="name" 			javaType="String" />
+   		<result property="week1" 			column="week1" 			javaType="String" />
+   		<result property="week2" 			column="week2" 			javaType="String" />
+   		<result property="week3" 			column="week3" 			javaType="String" />
+   		<result property="week4" 			column="week4" 			javaType="String" />
+   		<result property="week5" 			column="week5" 			javaType="String" />
+   		<result property="week6" 			column="week6" 			javaType="String" />
+   		<result property="total" 			column="total" 			javaType="String" />
+   		<result property="positionname" 	column="positionname" 			javaType="String" />
+   	</resultMap>
+   	<select id="getCommuteTableInfo" parameterType="HashMap" resultMap="getCommuteTableInfoMap">
+   		select departmentname, name, week1, week2, week3, week4, week5, week6, total, positionname
+    	from
+    	(
+			SELECT row_number() over(order by departmentName asc, name asc) as rno, departmentname, name, week1, week2, week3, week4, week5, week6, week1+week2+week3+week4+week5+week6 as total, positionname
+			from 
+			(
+			    SELECT E.name as name,
+			           nvl(V.week1, 0) as week1,
+			           nvl(V.week2, 0) as week2,
+			           nvl(V.week3, 0) as week3,
+			           nvl(V.week4, 0) as week4,
+			           nvl(V.week5, 0) as week5,
+			           nvl(V.week6, 0) as week6,
+			           FK_departmentNo,
+			           positionname
+			    FROM 
+			    (
+			        select fk_employeeno,
+			               TRUNC( SUM( decode( to_char(starttime,'w'), 1 , nvl( (endtime - starttime)*(24*60*60), 0), 0 ) ) ) AS week1,
+			               TRUNC( SUM( decode( to_char(starttime,'w'), 2 , nvl( (endtime - starttime)*(24*60*60), 0), 0 ) ) ) AS week2,
+			               TRUNC( SUM( decode( to_char(starttime,'w'), 3 , nvl( (endtime - starttime)*(24*60*60), 0), 0 ) ) ) AS week3,
+			               TRUNC( SUM( decode( to_char(starttime,'w'), 4 , nvl( (endtime - starttime)*(24*60*60), 0), 0 ) ) ) AS week4,
+			               TRUNC( SUM( decode( to_char(starttime,'w'), 5 , nvl( (endtime - starttime)*(24*60*60), 0), 0 ) ) ) AS week5,
+			               TRUNC( SUM( decode( to_char(starttime,'w'), 6 , nvl( (endtime - starttime)*(24*60*60), 0), 0 ) ) ) AS week6
+			        from tbl_commute
+			        where to_char(starttime, 'yyyymm') = #{year_month}
+			        group by fk_employeeno
+			    ) V right JOIN tbl_employee E
+			    ON V.fk_employeeno = E.employeeno
+			    join tbl_position P 
+			    on E.fk_positionno = P.positionno
+			    <choose>
+		    		<when test='searchType == "name" and searchWord != ""'>
+		    			where lower(name) like '%'||lower(#{searchWord})||'%' 
+		    		</when>
+		    		<otherwise></otherwise>
+		    	</choose>
+			) A Join tbl_department D
+			on A.FK_departmentNo = D.departmentNo
+			<if test="departmentNo != 'all'">
+				where departmentNo = to_number(#{departmentNo})
+			</if>
+			order by departmentName asc, name asc
+		)
+		WHERE rno between to_number(#{startRno}) and to_number(#{endRno})
+		
+   	</select>
+   	
+   	<select id="totalCnt" parameterType="HashMap" resultType="int">
+   		select count(*) as totalcount
+		from tbl_employee
+		where status = 1
+		<if test="departmentNo != 'all' and departmentNo != null">
+		and fk_departmentno = to_number(#{departmentNo})
+		</if>
+		<if test='searchType == "name" and searchWord != ""'>
+		and lower(name) like '%'||lower(#{searchWord})||'%' 
+		</if>
+   	</select>
+   	
+   	<resultMap type="HashMap" id="getCommuteCntMap">
+   		<result property="latenessCnt" 			column="latenessCnt" 			javaType="String" />
+   		<result property="earlyLeaveCnt" 		column="earlyLeaveCnt" 			javaType="String" />
+   		<result property="absenceCnt" 			column="absenceCnt" 			javaType="String" />
+   		<result property="halfdayMorningCnt" 	column="halfdayMorningCnt" 		javaType="String" />
+   		<result property="halfdayAfternoonCnt" 	column="halfdayAfternoonCnt" 	javaType="String" />
+   		<result property="vacationCnt" 			column="vacationCnt" 			javaType="String" />
+   		<result property="autoEndCnt" 			column="autoEndCnt" 			javaType="String" />
+   	</resultMap>
+   	<select id="getCommuteCnt" parameterType="HashMap" resultMap="getCommuteCntMap">
+   		select count( case when to_number( to_char(starttime, 'hh24') ) &gt; 8 and rest != 1 and rest != 2 then '1' end ) as latenessCnt
+		     , count( case when to_number( to_char(endtime, 'hh24') ) &lt; 18 and rest != 1 and rest != 3 then '1' end ) as earlyLeaveCnt
+		     , count( case when rest = 4 then '1' end ) as absenceCnt
+		     , count( case when rest = 2 then '1' end ) as halfdayMorningCnt
+		     , count( case when rest = 3 then '1' end ) as halfdayAfternoonCnt
+		     , count( case when rest = 1 then '1' end ) as vacationCnt
+		     , count( case when to_char(endtime, 'hh24:mi:ss') = '18:00:00' then '1' end) as autoEndCnt
+		from tbl_commute C 
+		join tbl_employee E
+		on C.fk_employeeNo = E.employeeNo
+		where substr(workdate, 0, 7) = #{year_month}
+		<if test="departmentNo != 'all'">
+			and E.fk_departmentNo = to_number(#{departmentNo})
+		</if>
+   	</select>
+   	
+   	
+   	
+   	
+   	<resultMap type="HashMap" id="getAnnualTableInfoMap">
+   		<result property="rno" 				column="rno" 			javaType="String" />
+   		<result property="employeeNo" 		column="employeeNo" 	javaType="String" />
+   		<result property="name" 			column="name" 			javaType="String" />
+   		<result property="departmentname" 	column="departmentname" javaType="String" />
+   		<result property="registerDate" 	column="registerDate" 	javaType="String" />
+   		<result property="workYear" 		column="workYear" 		javaType="String" />
+   		<result property="occurAnnual" 		column="occurAnnual" 	javaType="String" />
+   		<result property="overAnnual" 		column="overAnnual" 	javaType="String" />
+   		<result property="addAnnual" 		column="addAnnual" 		javaType="String" />
+   		<result property="totalannual" 		column="totalannual" 	javaType="String" />
+   		<result property="usedannual" 		column="usedannual" 	javaType="String" />
+   		<result property="remainingannual" 	column="remainingannual" javaType="String" />
+   	</resultMap>
+   	<select id="getAnnualTableInfo" parameterType="HashMap" resultMap="getAnnualTableInfoMap">
+   		select rno, name, departmentname, registerDate, workYear, occurAnnual, overAnnual, addAnnual, totalannual, usedannual, remainingannual, employeeNo
+	    from
+	    (
+	        select row_number() over(order by registerDate asc) as rno
+	             , name
+	             , departmentname
+	             , to_char(registerDate, 'yyyy-mm-dd') as registerDate
+			     , workYear
+	             , nvl(occurAnnual, 0) as occurAnnual
+	             , nvl(overAnnual, 0) as overAnnual
+	             , nvl(addAnnual, 0) as addAnnual
+			     , nvl(occurAnnual, 0) + nvl(overAnnual, 0) + nvl(addAnnual, 0) as totalannual
+			     , nvl(usedannual, 0) as usedannual
+				 , nvl(occurAnnual, 0) + nvl(overAnnual, 0) + nvl(addAnnual, 0) - nvl(usedannual, 0) as remainingannual
+				 , employeeNo
+			from
+			(
+			select employeeNo
+	             , case when sysdate - to_date( to_char(sysdate, 'yyyy') || to_char(registerDate,'mmdd'), 'yyyymmdd') &gt;= 0
+                    then extract(year from sysdate) - to_number( to_char(registerDate,'yyyy') ) + 1
+                    else extract(year from sysdate) - to_number( to_char(registerDate,'yyyy') ) 
+                    end AS workYear
+	             , name
+	             , departmentname
+	             , registerDate
+			from tbl_employee E join tbl_department D
+	        on E.fk_departmentno = D.departmentno
+			where E.status = 1 
+			<if test='searchType == "name" and searchWord != ""'>
+			and lower(name) like '%'||lower(#{searchWord})||'%' 
+			</if>
+			)E 
+			join
+			(
+			select occurAnnual, overAnnual, addAnnual, fk_employeeNo
+			from tbl_annual
+			where year = #{year}
+			)A
+			on E.employeeNo = A.fk_employeeNo 
+			left join
+			(
+			    select D.fk_employeeNo , sum(useamount) as usedannual
+			    from tbl_document D join tbl_draft_annual T
+			    on D.DOCUMENTNO = T.DOCUMENTNO
+			    where to_char(draftdate, 'yyyy') = #{year} and D.status = 1
+			    group by D.fk_employeeNo
+			)B
+			on E.employeeNo = B.fk_employeeNo
+	    )
+	    WHERE rno between to_number(#{startRno}) and to_number(#{endRno})
+   	</select>
+   	
+   	
+   	<select id="totalCnt_annaul" parameterType="HashMap" resultType="int">
+   		select count(*)
+		from tbl_employee E join tbl_annual A
+		on E.employeeno = A.fk_employeeno
+		where E.status = 1
+		and A.year = #{year}
+		<if test='searchType == "name" and searchWord != ""'>
+		and lower(name) like '%'||lower(#{searchWord})||'%' 
+		</if>
+   	</select>
+   	
+   	<resultMap type="HashMap" id="getMyinfoMap">
+   		<result property="name" 			column="name" 			javaType="String" />
+   		<result property="salary" 			column="salary" 		javaType="String" />
+   		<result property="departmentName" 	column="departmentName" javaType="String" />
+   	</resultMap>
+   	<select id="getMyinfo" parameterType="String" resultMap="getMyinfoMap">
+   		select E.name, P.salary, D.departmentName
+   		from tbl_employee E join tbl_department D
+   		on E.fk_departmentNo = D.departmentNo
+        join tbl_position P
+        on E.fk_positionNo = P.positionNo
+   		where E.employeeNo = to_number(#{employeeNo})
+   	</select>
+   	
+   	<select id="totalCnt_mySalary" parameterType="HashMap">
+   		select count(*) as cnt
+   		from tbl_salary
+   		where fk_employeeno = to_number(#{employeeNo})
+   	</select>
+ 
+ 	<resultMap type="HashMap" id="getMySalaryInfoMap">
+   		<result property="employeeNo" 	column="FK_EMPLOYEENO" 	javaType="String" />
+   		<result property="year_month" 		column="MONTH" 			javaType="String" />
+   		<result property="year" 			column="YEAR" 			javaType="String" />
+   		<result property="total_overtime" 	column="TOTAL_OVERTIME" javaType="String" />
+   		<result property="workRange" 		column="WORKRANGE" 		javaType="String" />
+   		<result property="monthSalary" 		column="MONTHSALARY" 	javaType="String" />
+   		<result property="overtimePay" 		column="OVERTIMEPAY" 	javaType="String" />
+   		<result property="incentive" 		column="INCENTIVE" 		javaType="String" />
+   		<result property="incentiveReason" 	column="INCENTIVEREASON" javaType="String" />
+   		<result property="paymentDate" 		column="PAYMENTDATE" 	javaType="String" />
+   		<result property="bank" 			column="BANK" 			javaType="String" />
+   		<result property="account" 			column="ACCOUNT" 		javaType="String" />
+   	</resultMap>
+   	<select id="getMySalaryInfo" parameterType="HashMap" resultMap="getMySalaryInfoMap">
+   		select rno
+   		     , FK_EMPLOYEENO
+   		     , MONTH
+   		     , YEAR
+   		     , TOTAL_OVERTIME
+   		     , WORKRANGE
+   		     , MONTHSALARY
+   		     , OVERTIMEPAY
+   		     , INCENTIVE
+   		     , INCENTIVEREASON
+   		     , PAYMENTDATE
+   		     , BANK
+   		     , ACCOUNT
+	    from
+	    (
+	   		select row_number() over(order by MONTH asc) as rno, O.FK_EMPLOYEENO, MONTH, O.YEAR, TOTAL_OVERTIME, WORKRANGE, MONTHSALARY, OVERTIMEPAY, INCENTIVE, INCENTIVEREASON, to_char(PAYMENTDATE, 'yyyy-mm-dd') as PAYMENTDATE, BANK, ACCOUNT
+			from
+			(
+			WITH WEEKLY_WORK AS (
+			    SELECT
+			        FK_EMPLOYEENO,
+			        TO_CHAR(NEXT_DAY(TO_DATE(WORKDATE, 'YYYY-MM-DD') - 7, '일요일'), 'YYYY-IW') AS WEEK, 
+			        TO_CHAR(TO_DATE(WORKDATE, 'YYYY-MM-DD'), 'YYYY/MM') AS MONTH,
+			        TO_CHAR(TO_DATE(WORKDATE, 'YYYY-MM-DD'), 'YYYY') AS YEAR, 
+			        SUM((ENDTIME - STARTTIME) * 24 * 60 * 60) AS WEEKLY_SECONDS
+			    FROM TBL_COMMUTE
+			    WHERE ENDTIME IS NOT NULL AND STARTTIME IS NOT NULL
+			    GROUP BY FK_EMPLOYEENO, TO_CHAR(NEXT_DAY(TO_DATE(WORKDATE, 'YYYY-MM-DD') - 7, '일요일'), 'YYYY-IW'), TO_CHAR(TO_DATE(WORKDATE, 'YYYY-MM-DD'), 'YYYY/MM'), TO_CHAR(TO_DATE(WORKDATE, 'YYYY-MM-DD'), 'YYYY')
+			),
+			OVERTIME_BY_WEEK AS (
+			    SELECT
+			        FK_EMPLOYEENO,
+			        MONTH,
+			        YEAR,
+			        CASE WHEN WEEKLY_SECONDS &gt; 144000 THEN WEEKLY_SECONDS - 144000 ELSE 0 END AS OVERTIME_SECONDS
+			    FROM WEEKLY_WORK
+			)
+			SELECT
+			    FK_EMPLOYEENO,
+			    MONTH,
+			    YEAR,
+			    TO_CHAR(TRUNC(SUM(OVERTIME_SECONDS) / 3600), 'FM00') || ':' ||
+			    TO_CHAR(TRUNC(MOD(SUM(OVERTIME_SECONDS), 3600) / 60), 'FM00') || ':' ||
+			    TO_CHAR(MOD(SUM(OVERTIME_SECONDS), 60), 'FM00') AS TOTAL_OVERTIME
+			FROM OVERTIME_BY_WEEK
+			GROUP BY FK_EMPLOYEENO, MONTH, YEAR
+			ORDER BY MONTH
+			)O
+			right join tbl_salary S
+			on (O.FK_EMPLOYEENO || O.MONTH) = (S.FK_EMPLOYEENO || substr(S.workrange,1,7))
+			WHERE S.FK_EMPLOYEENO = to_number(#{employeeNo}) AND O.YEAR = #{year}
+		)
+	    WHERE rno between to_number(#{startRno}) and to_number(#{endRno})
+   	</select>
+   	
+   	<update id="changeAddAnnual" parameterType="HashMap" >
+   		update tbl_annual set addannual = (addannual + (to_number(#{addCnt})))
+   		where fk_employeeno = to_number(#{fk_employeeNo}) and year = to_char(sysdate, 'yyyy')
+   	</update>
+   	
+   	
+   	
+   	
+   	
+   	<resultMap type="HashMap" id="getCEOMap">
+   		<result property="name" 	column="name" 	javaType="String" />
+   		<result property="employeeNo" 	column="employeeNo" 	javaType="String" />
+   	</resultMap>
+   	<select id="getCEO" resultMap="getCEOMap">
+   		select E.name, E.employeeNo
+		from tbl_position P join tbl_employee E
+		on P.positionNo = E.fk_positionNo
+		where P.positionNo = 100008 and E.securitylevel = 10 
+   	</select>
+   	
+   	<resultMap type="HashMap" id="getDeptMap">
+   		<result property="departmentNo" 	column="departmentNo" 	javaType="String" />
+   		<result property="departmentName" 	column="departmentName" javaType="String" />
+   		<result property="deptManagerNo" 	column="deptManagerNo" 	javaType="String" />
+   		<result property="deptManagerName" 	column="deptManagerName" javaType="String" />
+   	</resultMap>
+   	<select id="getDept" resultMap="getDeptMap">
+   		select D.departmentNo
+		     , D.departmentName
+		     , nvl(E.employeeNo, 0) as deptManagerNo
+		     , nvl(E.name, '공석') as deptManagerName
+		from tbl_department D left join tbl_employee E
+		on D.fk_managerNo = E.employeeNo
+   	</select>
+   	
+   	<resultMap type="HashMap" id="getTeamMap">
+   		<result property="teamNo" 			column="teamNo" 		javaType="String" />
+   		<result property="teamName" 		column="teamName" 		javaType="String" />
+   		<result property="fk_departmentNo" 	column="fk_departmentNo" javaType="String" />
+   		<result property="teamManagerNo" 	column="teamManagerNo" 	javaType="String" />
+   		<result property="teamManagerName" 	column="teamManagerName" javaType="String" />
+   	</resultMap>
+   	<select id="getTeam" resultMap="getTeamMap">
+   		select T.teamNo
+		     , T.teamName
+		     , T.fk_departmentNo
+		     , nvl(E.employeeNo, 0) as teamManagerNo
+		     , nvl(E.name, '공석') as teamManagerName
+		from tbl_team T left join tbl_employee E
+		on T.fk_managerNo = E.employeeNo
+   	</select>
+  
+   	
+   	
+</mapper>
+
+
+
+
+
+
+
+
+

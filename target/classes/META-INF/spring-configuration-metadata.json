@@ -1,0 +1,12 @@
+{
+  "groups": [
+    {
+      "name": "spring.datasource-finalorauser3",
+      "type": "javax.sql.DataSource",
+      "sourceType": "com.spring.app.config.Datasource_finalorauser3_Configuration",
+      "sourceMethod": "public javax.sql.DataSource dataSource() "
+    }
+  ],
+  "properties": [],
+  "hints": []
+}

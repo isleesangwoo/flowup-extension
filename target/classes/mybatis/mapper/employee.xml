@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- ==== mapper 기본설정 ==== -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- ==== 루트 엘리먼트 & 네임스페이스 설정(프로젝트 전체내에서 유일해야 한다.) ==== -->
+<mapper namespace="com.spring.app.employee.model.EmployeeDAO">
+   
+   <resultMap type="HashMap" id="test_map">
+   		<result property="no" column="no" javaType="String" />
+   		<result property="name" column="name" javaType="String" />
+   		<result property="writeday" column="writeday" javaType="String" />
+   </resultMap>
+   
+  <!-- 
+   <select id="test" resultMap="test_map">
+ 	 select no, name, to_char(writeday, 'yyyy-mm-dd') AS writeday
+ 	 from spring_exam
+   </select>
+   -->  
+
+   
+   <!-- #ljh5. 로그인 처리 하기 -->
+	<select id="getLoginEmployee" resultType="EmployeeVO" parameterType="HashMap" >
+	    SELECT E.EMPLOYEENO, E.passwd, E.FK_POSITIONNO, E.FK_TEAMNO, E.Name, 
+	           E.SECURITYLEVEL, E.Email, E.Bank, substr(E.Mobile, 1, 3) || '-' || substr(E.Mobile, 4, 4) || '-' || substr(E.Mobile, 8) AS Mobile, 
+	           substr(E.directcall, 1, 2) || ')' || substr(E.directcall, 3, 4) || '-' || substr(E.directcall, 7) AS directcall, 
+	           E.account, to_char(E.registerdate, 'yyyy-mm-dd') AS registerdate, E.Status, E.REASONFORLEAVING, 
+	           E.lastDate, E.MOTIVE, E.FILENAME, E.Address, to_char(E.birth, 'yyyy-mm-dd') AS birth,
+	           E.FK_DEPARTMENTNO , D.departmentname, T.teamName
+	    FROM tbl_employee E LEFT JOIN tbl_department D 
+	    ON E.FK_DEPARTMENTNO = D.DEPARTMENTNO JOIN tbl_team T 
+	    ON T.teamNo = E.fk_teamNo
+	    WHERE E.employeeNo = to_number(#{id})
+	    AND E.passwd = #{passwd}
+	    AND E.status = 1
+	</select>
+
+	<!-- 관리자의 사원 추가 -->
+   <insert id="insert_employee">
+   	 insert into tbl_employee(EMPLOYEENO, FK_POSITIONNO, FK_TEAMNO, PASSWD, NAME, SECURITYLEVEL, EMAIL, MOBILE, DIRECTCALL, BANK, ACCOUNT, REGISTERDATE, STATUS, ADDRESS, BIRTH, FK_DEPARTMENTNO)
+     values(to_number(#{employeeNo}), to_number(#{FK_positionNo}), to_number(#{FK_teamNo}), #{passwd}, #{name}, to_number(#{securityLevel}), #{email}, #{mobile}, #{directCall}, #{bank}, #{account}, to_date(#{registerDate},'yyyy-mm-dd'), to_number(#{status}), #{address}, to_date(#{birth}, 'yyyy-mm-dd'), to_number(#{FK_departmentNo}))                       
+   </insert>
+   
+   
+   <!-- === 부서번호, 부서명 알아오기 === -->
+   <resultMap type="HashMap" id="departmentno_select_Map">
+      <result property="departmentNo" 	column="departmentNo" 	javaType="String" />
+      <result property="departmentname" column="departmentname" javaType="String" />
+   </resultMap>
+   <select id="departmentno_select" resultMap="departmentno_select_Map">
+		select departmentNo, departmentname
+		from tbl_department
+		order by departmentNo asc
+   </select>
+   
+   <!-- === 직급번호, 직급명 알아오기 === -->
+   <resultMap type="HashMap" id="positionno_select_Map">
+      <result property="positionno" 	column="positionno" 	javaType="String" />
+      <result property="positionname"   column="positionname"   javaType="String" />
+   </resultMap>
+   <select id="positionno_select" resultMap="positionno_select_Map">
+		select positionno, positionname
+		from tbl_position
+		order by positionno asc
+   </select>
+   
+   
+   <!-- === 부서번호별 팀번호 알아오기 === -->
+   <resultMap type="HashMap" id="teamNo_seek_BydepartmentNo_Map">
+      <result property="teamNo" 	       column="teamNo" 			javaType="String" />
+      <result property="teamName"   	   column="teamName" 		javaType="String" />
+   </resultMap>
+   <select id="teamNo_seek_BydepartmentNo" parameterType="String" resultMap="teamNo_seek_BydepartmentNo_Map">
+		select teamNo, teamName
+		from tbl_team
+		where fk_departmentNo = to_number(#{departmentNo})
+		order by teamNo asc
+   </select>
+   
+   <!-- 회원가입시 해당 연도에 연차 insert 해주기 -->
+   <insert id="insert_annual" parameterType="String">
+	   	insert into tbl_annual(annualno, fk_employeeno, year, occurannual, overannual, addannual)
+	    values(annualseq.nextval, #{employeeNo}, to_char(sysdate,'yyyy'), 15,0,0)
+   </insert>
+   
+   
+   
+   <!--  내 정보 수정하기  -->
+ <update id="updateInfoEnd" parameterType="EmployeeVO">
+ 
+ 	update tbl_employee set email=#{email}, mobile=#{mobile}, directCall=#{directCall}, birth = to_date(#{birth},'yyyy-mm-dd'),
+ 							address = #{address}, motive=#{motive}
+	where employeeNo = to_number(#{employeeNo})
+	
+ </update>
+ 
+ 
+ <!-- 내 정보 수정하기 첨부파일 존재 -->
+ <update id="upadateInfoEnd_withFile" parameterType="EmployeeVO">
+ 	update tbl_employee set email=#{email}, mobile=#{mobile}, directCall=#{directCall}, birth = to_date(#{birth},'yyyy-mm-dd'),
+ 							address = #{address}, motive=#{motive}, profileimg=#{profileImg}, fileSize=#{fileSize},fileName=#{fileName}
+	where employeeNo = to_number(#{employeeNo})
+ 
+ </update>
+ 
+ 
+ 
+ 
+ <!-- 주소록 추가 -->
+ <insert id="insert_addressBook" >
+ 	insert into tbl_addressbook(ADRSBNO,fk_employeeNo,firstName,middleName,lastName,company,department,rank,email,phoneNo,DIRECTCALL,COMPANYADRS)
+	      values(ADRSBNO.nextval,to_number(#{fk_employeeNo}),#{firstName},#{middleName},#{lastName},#{company},#{department},#{rank},#{email},#{phoneNo},#{directCall},#{companyAddress})
+ </insert>
+ 
+ 
+ 
+ <resultMap type="HashMap" id="all_address_data_list_Map">
+ 	<result property="ADRSBNO"        column="ADRSBNO" 		javaType="String"/>
+ 	<result property="name"        column="name" 		javaType="String"/>
+ 	<result property="COMPANY"     column="COMPANY" 	javaType="String"/>
+ 	<result property="DEPARTMENT"  column="DEPARTMENT" 	javaType="String"/>
+ 	<result property="RANK"        column="RANK" 		javaType="String"/>
+ 	<result property="EMAIL"       column="EMAIL" 		javaType="String"/>
+ 	<result property="PHONENO"     column="PHONENO" 	javaType="String"/>
+ 	<result property="DIRECTCALL"  column="DIRECTCALL"  javaType="String"/>
+ </resultMap>
+ 
+ <select id="all_address_data_list" parameterType="String" resultMap="all_address_data_list_Map">
+ 
+	select ADRSBNO, FIRSTNAME||MIDDLENAME||LASTNAME AS name,
+	     COMPANY,DEPARTMENT,RANK,EMAIL,PHONENO,DIRECTCALL
+	from tbl_addressbook
+	where fk_employeeNo = to_number(#{fk_employeeNo})
+	order by ADRSBNO desc
+ 	
+ </select>
+ 
+ 
+ 
+ <select id="all_select_address"   resultMap="all_address_data_list_Map">
+ 	select ADRSBNO, FIRSTNAME||MIDDLENAME||LASTNAME AS name,
+	     COMPANY,DEPARTMENT,RANK,EMAIL,PHONENO,DIRECTCALL
+	from tbl_addressbook
+	where fk_employeeNo = to_number(#{fk_employeeNo})
+	order by ADRSBNO desc
+ </select>
+ 
+ <select id="department_address_data" parameterType="String" resultMap="all_address_data_list_Map">
+		select FIRSTNAME||MIDDLENAME||LASTNAME AS name,
+		       COMPANY,DEPARTMENT,RANK,EMAIL,PHONENO,DIRECTCALL
+		from tbl_addressbook
+		where fk_employeeNo=to_number(#{fk_employeeNo}) and COMPANY='flow up'
+		order by DEPARTMENT, ADRSBNO desc
+ </select>
+ 
+ 
+ <select id="external_address_data"  resultMap="all_address_data_list_Map">
+		select FIRSTNAME||MIDDLENAME||LASTNAME AS name,
+		      COMPANY,DEPARTMENT,RANK,EMAIL,PHONENO,DIRECTCALL
+		from tbl_addressbook
+		where fk_employeeNo=to_number(#{fk_employeeNo}) and COMPANY !='flow up'
+		order by DEPARTMENT, ADRSBNO desc
+ </select>
+ 
+ 
+ <resultMap type="HashMap" id="addressBook_select_department_list_Map">
+ 	<result property="department" column="department"  javaType="String"/>
+ </resultMap>
+<!-- 우리 회사 부서 주소록 -->
+ <select id="addressBook_select_department_list" resultMap="addressBook_select_department_list_Map">
+ 
+	select department
+	from tbl_addressBook
+	where COMPANY ='flow up'
+	group by department
+	order by DEPARTMENT asc
+ 
+ </select>
+
+ <resultMap type="HashMap" id="all_employee_info_list_map">
+ 	<result property="name"			column="name" 		  javaType="String"/>
+ 	<result property="employeeno" 	column="employeeno" 	  javaType="String"/>
+ 	<result property="positionname" 	column="positionname"   javaType="String"/>
+ 	<result property="departmentname" column="departmentname" javaType="String"/>
+ 	<result property="Teamname" 		column="Teamname" 	  javaType="String"/>
+ </resultMap>
+ 
+ <select id="all_employee_info_list" resultMap="all_employee_info_list_map">
+		With A AS (
+			select E.name, D.departmentname, E.employeeno
+			from tbl_employee E join tbl_department D
+			on E.fk_departmentno = D.departmentno
+		),
+		B AS(
+			select P.positionname, E.employeeno
+			from tbl_employee E join tbl_position P
+			on E.fk_positionno = P.positionno
+		
+		),
+		C AS(
+			select T.teamname, E.employeeno
+			from tbl_employee E join tbl_team T
+			on E.fk_teamno = T.teamno
+		)
+		select A.name as name, A.employeeno as employeeno, A.departmentname as departmentname,
+		       B.positionname as positionname, C.teamname as teamname
+		From A JOIN 
+		    B ON A.employeeno = B.employeeno JOIN
+		    C ON B.employeeno = C.employeeno
+		ORDER BY A.employeeno desc
+ </select>
+
+ <!-- 주소록 삭제 -->
+ <delete id="delete_address_book">
+	 delete from tbl_addressbook where adrsbno=to_number(#{addressno})
+ </delete>
+
+
+ <!-- 변경할 직급명에 대한 직급번호 알아오기 -->
+ <select id="getPositionName" parameterType="String" resultType="String">
+     select to_char(positionno) AS positionno 
+     from tbl_position
+     where positionname = #{positionName}  
+ </select>
+  
+ <!-- 변경할 부서명에 대한 부서번호 알아오기 -->
+ <select id="getDepartmentName" parameterType="String" resultType="String">
+      select to_char(departmentno) AS departmentno 
+      from tbl_department
+      where departmentname = #{departmentName}
+ </select>	
+	
+	
+ <!-- 변경할 팀명에 대한 팀번호 알아오기 --> 
+ <select id="getTeamName" parameterType="String" resultType="String">
+      select to_char(teamno) AS teamno 
+      from tbl_team
+      where teamname = #{teamName}
+ </select>	
+	
+	
+ <!-- 관리자의 사원정보 수정 -->
+ <update id="updateEmployee_byAdminEnd" parameterType="HashMap">
+      update tbl_employee set name = #{name}
+                            , fk_positionNo = #{positionNo}  
+                            , fk_departmentNo = #{departmentNo}
+                            , fk_teamNo = #{teamNo}
+      where employeeno = #{employeeNo}
+ </update>
+ 
+ 
+ <insert id="addGroupOptionEnd" parameterType="GroupVO">
+ 	insert into tbl_group(groupno,fk_employeeno,GROUPNAME)
+	values(groupno.nextval,to_number(#{g_fk_employee}),#{groupname})
+ </insert>
+ 
+ 
+ 
+ <resultMap type="HashMap" id="groupOptionSelect_map">
+ 	
+ 	<result property="groupNo"   column="groupNo"   javaType="String"/>
+ 	<result property="groupName" column="groupName" javaType="String"/>
+ 	<!-- 그룹옵션 추가하기 -->
+ </resultMap>
+ <select id="groupOptionSelect" parameterType="String" resultMap="groupOptionSelect_map">
+	 select groupNo, groupName
+	 from tbl_group
+	 order by groupName desc
+ </select>
+ 
+ <resultMap type="HashMap" id="groupNo_and_groupName_select_map">
+ 	<result property="groupNo"   column="groupNo"   javaType="String"/>
+ 	<result property="groupName" column="groupName" javaType="String"/>
+ </resultMap>
+ <!-- 그룹번호와 그룹이름 가져오기  -->
+ <select id="groupNo_and_groupName_select" resultMap="groupNo_and_groupName_select_map">
+	 select groupNo, groupName
+	 from tbl_group 
+	 where fk_employeeno = to_number(#{g_fk_employee})
+	 order by groupno asc
+</select>
+
+<select id="addGroup">
+	select groupNo, groupName
+	from tbl_group
+	where fk_employeeno  = #{fk_employeeno} and groupNo=#{groupNo}
+</select>
+	
+	
+	
+	
+	<!-- tbl_loginhistory 테이블에 insert 해주기 -->
+  <insert id="insert_tbl_loginhistory" parameterType="HashMap">
+	  insert into tbl_loginhistory(historyno, fk_employeeno, logindate, clientip)
+	  values(historyno.nextval, #{id}, default, #{clientIp})
+  </insert>	
+
+
+  <resultMap type="HashMap" id="ipMap">
+    <result column="historyno" property="historyno" javaType="String"/>
+    <result column="fk_employeeno" property="fk_employeeno" javaType="String"/>
+    <result column="logindate" property="logindate" javaType="String"/>
+    <result column="clientip" property="clientip" javaType="String"/>
+  </resultMap>
+  <!-- 메인페이지 이동시 ip 주소 갖고오기 -->
+  <select id="getIpAddr" parameterType="String" resultMap="ipMap">
+  	  select historyno, fk_employeeno, to_char(logindate, 'yyyy-MM-dd HH24:mi:ss') as logindate, clientip
+	  from tbl_loginhistory
+	  where fk_employeeno = #{employeeno}
+	  order by logindate desc
+  </select>
+	
+	
+	
+	
+</mapper>
+
+
+
