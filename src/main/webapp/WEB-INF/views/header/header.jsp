@@ -118,10 +118,13 @@
                               <a href="<%= ctxPath%>/calendar/"><i class="fa-regular fa-calendar-days"></i><span>캘린더</span></a>
                           </li>
                           <li>
-                              <a href="<%= ctxPath%>/commute/organization"><i class="fa-regular fa-folder"></i><span>조직도</span></a>
+                              <a href="<%= ctxPath%>/commute/organization"><i class="fa-regular fa-id-badge"></i><span>조직도</span></a>
                           </li>
                           <li>
                               <a href="<%= ctxPath%>/employee/addressBook"><i class="fas fa-address-book"></i><span>주소록</span></a>
+                          </li>
+                          <li>
+                              <a href="<%= ctxPath%>/repository/repository"><i class="fa-regular fa-folder"></i><span>자료실</span></a>
                           </li>
                           
                       </ul>
@@ -158,9 +161,6 @@
                 <div class="top_header_r top_header">
                     <div class="top_ikon">
                        <a class="dropdown-item" href="<%=serverName%><%=ctxPath%>/chatting/multichat"><i class="fa-solid fa-comment-dots"></i></a>
-                    </div>
-                    <div class="top_ikon">
-                        
                     </div>
                     <div class="top_ikon">
 	                     <c:if test="${empty sessionScope.loginuser.fileName}">
