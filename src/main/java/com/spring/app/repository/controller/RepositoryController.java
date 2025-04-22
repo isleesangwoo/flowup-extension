@@ -18,9 +18,6 @@ public class RepositoryController {
 	@GetMapping("")
 	public ModelAndView repository(ModelAndView mav) {
 		
-		int total = service.totaltest();
-		mav.addObject("total",total);
-		
 		mav.setViewName("mycontent/repository/repository");
 		return mav;
 	}
