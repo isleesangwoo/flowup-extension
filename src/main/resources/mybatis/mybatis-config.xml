@@ -27,6 +27,9 @@
       <typeAlias type="com.spring.app.employee.domain.TeamVO" alias="TeamVO"/>
       <typeAlias type="com.spring.app.board.domain.NotificationVO" alias="NotificationVO"/>
       <typeAlias type="com.spring.app.employee.domain.GroupVO" alias="GroupVO"/>
+      
+      <typeAlias type="com.spring.app.repository.domain.FolderVO" alias="FolderVO"/>
+      <typeAlias type="com.spring.app.repository.domain.RepositoryVO" alias="RepositoryVO"/>
    </typeAliases>
 
 </configuration>
